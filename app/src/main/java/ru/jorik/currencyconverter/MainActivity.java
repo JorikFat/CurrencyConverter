@@ -167,7 +167,7 @@ public class MainActivity extends AppCompatActivity {
         double tempValue = inputSum * coef1;//in Rub
         double result = tempValue / coef2;
 
-        ((TextView)findViewById(R.id.textView)).setText(String.valueOf(result));
+        ((TextView)findViewById(R.id.textView)).setText(String.format("%.4f",result));
 
 
     }
