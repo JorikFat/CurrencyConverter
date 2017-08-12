@@ -2,7 +2,6 @@ package ru.jorik.currencyconverter;
 
 import android.content.Context;
 import android.os.AsyncTask;
-import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -21,7 +20,7 @@ public class AsyncRequest extends AsyncTask<Context, Void, String> {
 
     @Override
     protected void onPostExecute(String s) {
-        Toast.makeText(context, "Данные пришли", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(context, "Данные пришли", Toast.LENGTH_SHORT).show();
         super.onPostExecute(s);
     }
 

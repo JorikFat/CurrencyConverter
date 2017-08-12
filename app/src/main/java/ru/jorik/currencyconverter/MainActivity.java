@@ -8,12 +8,18 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import org.simpleframework.xml.core.Persister;
+
+import java.io.Reader;
+import java.io.StringReader;
 import java.util.concurrent.ExecutionException;
 
 public class MainActivity extends AppCompatActivity {
 
     String serverResponce;
+    ValCurs valCurs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +39,25 @@ public class MainActivity extends AppCompatActivity {
         try {
             serverResponce = new AsyncRequest().execute(this).get();
         } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+
+        /*
+        * Костыль:
+        * преобразуем все разделители вещественных чисел из запятых в точки
+        * Я проверял ответ от сервера. Запятые выдается только в разделителях чисел,
+        * больше они нигде не встречаются
+        */
+        //// TODO: 12.08.2017 переделать разделитель double с "," на "."
+        serverResponce = serverResponce.replace(',', '.');
+
+        Reader reader = new StringReader(serverResponce);
+        Persister deserializer = new Persister();
+
+        try {
+            valCurs = deserializer.read(ValCurs.class, reader, false);
+            Toast.makeText(this, "Десериализация", Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
