@@ -101,7 +101,6 @@ public class ValuteDateBase extends SQLiteOpenHelper {
     public int getCount() {
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(COUNT_QUERY, null);
-//        cursor.close();
         return cursor.getCount();
     }
 

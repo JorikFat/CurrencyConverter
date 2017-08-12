@@ -13,5 +13,4 @@ public class ValCurs {
 
     @ElementList(inline=true)
     List<Valute> valuteList;
-
 }
