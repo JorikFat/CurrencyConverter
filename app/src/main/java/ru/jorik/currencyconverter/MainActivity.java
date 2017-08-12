@@ -7,14 +7,17 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 
 import org.simpleframework.xml.core.Persister;
 
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -32,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                changeTextView(serverResponce);
+
             }
         });
 
@@ -56,10 +59,18 @@ public class MainActivity extends AppCompatActivity {
 
         try {
             valCurs = deserializer.read(ValCurs.class, reader, false);
-            Toast.makeText(this, "Десериализация", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(this, "Десериализация", Toast.LENGTH_SHORT).show();
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        String[] valuteArray;
+        valuteArray = getCountryArray();
+        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, valuteArray);
+        arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        ((Spinner)findViewById(R.id.spinner1)).setAdapter(arrayAdapter);
+        ((Spinner)findViewById(R.id.spinner2)).setAdapter(arrayAdapter);
     }
 
     @Override
@@ -84,11 +95,14 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void fabClick(View fab){
-
+    private String[] getCountryArray(){
+        List<String> rList = new ArrayList<>();
+        for (Valute v : valCurs.valuteList){
+            rList.add(v.name);
+        }
+        String[] rArray = new String[rList.size()];
+        rArray = rList.toArray(rArray);
+        return rArray;
     }
 
-    public void changeTextView(String text){
-        ((TextView) findViewById(R.id.hw)).setText(text);
-    }
 }
