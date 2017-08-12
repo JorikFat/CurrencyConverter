@@ -51,11 +51,9 @@ public class MainActivity extends AppCompatActivity {
                 vdb.createItem(valute);
             }
         } else {
-
+            valCurs = new ValCurs();
             valCurs.valuteList = vdb.getAllValutes();
-            for (Valute valute : valCurs.valuteList){
-                vdb.updateItem(valute);
-            }
+            new AsyncUpdateDB().execute(this);
         }
 
 
@@ -85,11 +83,8 @@ public class MainActivity extends AppCompatActivity {
 //        valCurs.valuteList.add(0, rubValute);
 
         String[] valuteArray;
-        String[] valuteItem;
         valuteArray = getValuteArray();
-        valuteItem = getValuteItem();
         final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, valuteArray);
-        final ArrayAdapter<String> itemAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, valuteItem);
         arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
         spinner1 = ((Spinner)findViewById(R.id.spinner1));
@@ -164,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private void formListValute(){
+    void formListValute(){
         try {
             serverResponce = new AsyncRequest().execute(this).get();
         } catch (InterruptedException | ExecutionException e) {
@@ -190,6 +185,8 @@ public class MainActivity extends AppCompatActivity {
         //добавление рубля, так как его нету в ответе сервера
         Valute rubValute = new Valute();
         rubValute.charCode = "RUB";
+        rubValute.id = "rubId";
+        rubValute.numCode = 123;
         rubValute.name = "Российский рубль";
         rubValute.nominal = 1;
         rubValute.value = 1;

@@ -20,7 +20,6 @@ public class AsyncRequest extends AsyncTask<Context, Void, String> {
 
     @Override
     protected void onPostExecute(String s) {
-//        Toast.makeText(context, "Данные пришли", Toast.LENGTH_SHORT).show();
         super.onPostExecute(s);
     }
 
