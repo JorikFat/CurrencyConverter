@@ -23,6 +23,7 @@ import java.util.concurrent.ExecutionException;
 
 public class MainActivity extends AppCompatActivity {
 
+    ValuteDateBase vdb;
     String serverResponce;
     ValCurs valCurs;
     Spinner spinner1;
@@ -43,37 +44,45 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        try {
-            serverResponce = new AsyncRequest().execute(this).get();
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
+        vdb = new ValuteDateBase(this);
+        if (vdb.getCount() == 0){
+            formListValute();
+            for (Valute valute : valCurs.valuteList){
+                vdb.createItem(valute);
+            }
+        } else {
+
+            valCurs.valuteList = vdb.getAllValutes();
+            for (Valute valute : valCurs.valuteList){
+                vdb.updateItem(valute);
+            }
         }
 
-        /*
-        * Костыль:
-        * преобразуем все разделители вещественных чисел из запятых в точки
-        * Я проверял ответ от сервера. Запятые выдается только в разделителях чисел,
-        * больше они нигде не встречаются
-        */
-        //// TODO: 12.08.2017 переделать разделитель double с "," на "."
-        serverResponce = serverResponce.replace(',', '.');
 
-        Reader reader = new StringReader(serverResponce);
-        Persister deserializer = new Persister();
-
-        try {
-            valCurs = deserializer.read(ValCurs.class, reader, false);
-//            Toast.makeText(this, "Десериализация", Toast.LENGTH_SHORT).show();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        //добавление рубля, так как его нету в ответе сервера
-        Valute rubValute = new Valute();
-        rubValute.charCode = "RUB";
-        rubValute.name = "Российский рубль";
-        rubValute.nominal = 1;
-        rubValute.value = 1;
-        valCurs.valuteList.add(0, rubValute);
+//        try {
+//            serverResponce = new AsyncRequest().execute(this).get();
+//        } catch (InterruptedException | ExecutionException e) {
+//            e.printStackTrace();
+//        }
+//
+//
+//        serverResponce = serverResponce.replace(',', '.');
+//
+//        Reader reader = new StringReader(serverResponce);
+//        Persister deserializer = new Persister();
+//
+//        try {
+//            valCurs = deserializer.read(ValCurs.class, reader, false);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        //добавление рубля, так как его нету в ответе сервера
+//        Valute rubValute = new Valute();
+//        rubValute.charCode = "RUB";
+//        rubValute.name = "Российский рубль";
+//        rubValute.nominal = 1;
+//        rubValute.value = 1;
+//        valCurs.valuteList.add(0, rubValute);
 
         String[] valuteArray;
         String[] valuteItem;
@@ -88,26 +97,8 @@ public class MainActivity extends AppCompatActivity {
         spinner1.setAdapter(arrayAdapter);
         spinner2.setAdapter(arrayAdapter);
 
-/*
-        spinner1.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                spinner1.setAdapter(itemAdapter);
-                spinner1.setSelection(position);
-            }
 
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
 
-            }
-        });
-*/
-/*        spinner1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                spinner1.setAdapter(arrayAdapter);
-            }
-        });*/
     }
 
     @Override
@@ -170,5 +161,38 @@ public class MainActivity extends AppCompatActivity {
         ((TextView)findViewById(R.id.textView)).setText(String.format("%.4f",result));
 
 
+    }
+
+
+    private void formListValute(){
+        try {
+            serverResponce = new AsyncRequest().execute(this).get();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+        /*
+        * Костыль:
+        * преобразуем все разделители вещественных чисел из запятых в точки
+        * Я проверял ответ от сервера. Запятые выдается только в разделителях чисел,
+        * больше они нигде не встречаются
+        */
+        //// TODO: 12.08.2017 переделать разделитель double с "," на "."      serverResponce = serverResponce.replace(',', '.');
+        serverResponce = serverResponce.replace(',', '.');
+
+        Reader reader = new StringReader(serverResponce);
+        Persister deserializer = new Persister();
+
+        try {
+            valCurs = deserializer.read(ValCurs.class, reader, false);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        //добавление рубля, так как его нету в ответе сервера
+        Valute rubValute = new Valute();
+        rubValute.charCode = "RUB";
+        rubValute.name = "Российский рубль";
+        rubValute.nominal = 1;
+        rubValute.value = 1;
+        valCurs.valuteList.add(0, rubValute);
     }
 }
