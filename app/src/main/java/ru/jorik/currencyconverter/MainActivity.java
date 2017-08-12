@@ -8,7 +8,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import org.simpleframework.xml.core.Persister;
 
@@ -23,6 +25,8 @@ public class MainActivity extends AppCompatActivity {
 
     String serverResponce;
     ValCurs valCurs;
+    Spinner spinner1;
+    Spinner spinner2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                convert();
             }
         });
 
@@ -63,14 +67,47 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        //добавление рубля, так как его нету в ответе сервера
+        Valute rubValute = new Valute();
+        rubValute.charCode = "RUB";
+        rubValute.name = "Российский рубль";
+        rubValute.nominal = 1;
+        rubValute.value = 1;
+        valCurs.valuteList.add(0, rubValute);
 
         String[] valuteArray;
-        valuteArray = getCountryArray();
-        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, valuteArray);
+        String[] valuteItem;
+        valuteArray = getValuteArray();
+        valuteItem = getValuteItem();
+        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, valuteArray);
+        final ArrayAdapter<String> itemAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, valuteItem);
         arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
-        ((Spinner)findViewById(R.id.spinner1)).setAdapter(arrayAdapter);
-        ((Spinner)findViewById(R.id.spinner2)).setAdapter(arrayAdapter);
+        spinner1 = ((Spinner)findViewById(R.id.spinner1));
+        spinner2 = ((Spinner)findViewById(R.id.spinner2));
+        spinner1.setAdapter(arrayAdapter);
+        spinner2.setAdapter(arrayAdapter);
+
+/*
+        spinner1.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                spinner1.setAdapter(itemAdapter);
+                spinner1.setSelection(position);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+*/
+/*        spinner1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                spinner1.setAdapter(arrayAdapter);
+            }
+        });*/
     }
 
     @Override
@@ -95,14 +132,43 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private String[] getCountryArray(){
+    private String[] getValuteArray(){
         List<String> rList = new ArrayList<>();
         for (Valute v : valCurs.valuteList){
-            rList.add(v.name);
+            rList.add(v.charCode + " " + v.name);
         }
         String[] rArray = new String[rList.size()];
         rArray = rList.toArray(rArray);
         return rArray;
     }
 
+    private String[] getValuteItem(){
+        List<String> rList = new ArrayList<>();
+        for (Valute v : valCurs.valuteList){
+            rList.add(v.charCode);
+        }
+        String[] rArray = new String[rList.size()];
+        rArray = rList.toArray(rArray);
+        return rArray;
+    }
+
+    private void convert(){
+        Valute vf;
+        Valute vt;
+
+        vf = valCurs.valuteList.get(spinner1.getSelectedItemPosition());
+        vt = valCurs.valuteList.get(spinner2.getSelectedItemPosition());
+        double inputSum = Double.parseDouble(((EditText) findViewById(R.id.editText)).getText().toString());
+
+        double coef1 = vf.value / vf.nominal;
+        double coef2 = vt.value / vt.nominal;
+
+
+        double tempValue = inputSum * coef1;//in Rub
+        double result = tempValue / coef2;
+
+        ((TextView)findViewById(R.id.textView)).setText(String.valueOf(result));
+
+
+    }
 }
